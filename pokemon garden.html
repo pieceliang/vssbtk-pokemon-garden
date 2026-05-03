@@ -1,0 +1,1931 @@
+<!doctype html>
+<html lang="zh" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>VSS BTK Pokemon Garden</title>
+  <style>
+/* ... (保留你原有的所有 CSS 样式) ... */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes wiggle {
+  0%,100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes level-up {
+  0% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.3); filter: brightness(1.5) hue-rotate(30deg); }
+  50% { transform: scale(1.1); filter: brightness(1.2); }
+  75% { transform: scale(1.25); filter: brightness(1.4) hue-rotate(-30deg); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes sad-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+@keyframes heart-float {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
+}
+@keyframes tear-drop {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(30px); }
+}
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(80px) rotate(720deg); }
+}
+@keyframes evolve-flash {
+  0%   { filter: brightness(1) saturate(1); transform: scale(1); }
+  15%  { filter: brightness(4) saturate(0); transform: scale(1.1); }
+  30%  { filter: brightness(1) saturate(2) hue-rotate(60deg); transform: scale(0.95); }
+  45%  { filter: brightness(4) saturate(0); transform: scale(1.15); }
+  60%  { filter: brightness(1.5) saturate(2) hue-rotate(-60deg); transform: scale(1.05); }
+  75%  { filter: brightness(3) saturate(0); transform: scale(1.1); }
+  90%  { filter: brightness(1.2) saturate(1.5) hue-rotate(30deg); transform: scale(1.02); }
+  100% { filter: brightness(1) saturate(1); transform: scale(1); }
+}
+
+/* ===== Full-screen Evolution Animation ===== */
+@keyframes evo-overlay-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes evo-overlay-out {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes evo-white-pulse {
+  0%,100% { opacity: 0; }
+  10%  { opacity: 0.85; }
+  20%  { opacity: 0.2; }
+  35%  { opacity: 0.95; }
+  50%  { opacity: 0.3; }
+  65%  { opacity: 1; }
+  80%  { opacity: 0.4; }
+  90%  { opacity: 0.9; }
+}
+@keyframes evo-sprite-out {
+  0%   { opacity: 1; filter: brightness(1); transform: scale(1); }
+  30%  { opacity: 1; filter: brightness(6) saturate(0); transform: scale(1.2); }
+  60%  { opacity: 0; filter: brightness(8) saturate(0); transform: scale(1.4); }
+  100% { opacity: 0; filter: brightness(8) saturate(0); transform: scale(1.5); }
+}
+@keyframes evo-sprite-in {
+  0%   { opacity: 0; filter: brightness(8) saturate(0); transform: scale(0.6); }
+  40%  { opacity: 0; filter: brightness(6) saturate(0); transform: scale(0.8); }
+  70%  { opacity: 1; filter: brightness(2) saturate(1.5); transform: scale(1.15); }
+  85%  { filter: brightness(1.3) saturate(1.2); transform: scale(0.95); }
+  100% { opacity: 1; filter: brightness(1) saturate(1); transform: scale(1); }
+}
+@keyframes evo-ring-expand {
+  0%   { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+@keyframes evo-star-spin {
+  0%   { transform: rotate(0deg) scale(0); opacity: 1; }
+  50%  { transform: rotate(180deg) scale(1.4); opacity: 1; }
+  100% { transform: rotate(360deg) scale(0); opacity: 0; }
+}
+@keyframes evo-text-pop {
+  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.2) rotate(3deg); opacity: 1; }
+  80%  { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes evo-name-slide {
+  0%   { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+#evo-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  background: radial-gradient(ellipse at center, #1a0a3e 0%, #0a0020 60%, #000 100%);
+}
+#evo-fullscreen .evo-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid rgba(255,220,0,0.6);
+  animation: evo-ring-expand 1.2s ease-out forwards;
+}
+#evo-fullscreen .evo-star {
+  position: absolute;
+  font-size: 28px;
+  animation: evo-star-spin 1.4s ease-in-out forwards;
+}
+.evo-sprite-stage {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.evo-sprite-stage img {
+  width: 160px;
+  height: 160px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px #f8c200);
+}
+@keyframes pokeball-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes evolve-glow {
+  0%,100% { box-shadow: 0 0 12px 2px #f8c200aa; }
+  50% { box-shadow: 0 0 32px 10px #ff6b00cc; }
+}
+@keyframes evolve-ready-pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+.bounce-in { animation: bounce-in 0.5s ease-out; }
+.wiggle { animation: wiggle 0.5s ease-in-out; }
+.float-anim { animation: float 2s ease-in-out infinite; }
+.level-up-anim { animation: level-up 1s ease-in-out; }
+.sad-anim { animation: sad-shake 0.5s ease-in-out; }
+.evolve-anim { animation: evolve-flash 1.5s ease-in-out; }
+.evolve-glow { animation: evolve-glow 1.5s ease-in-out infinite; border-color: #f8c200 !important; }
+
+.pokemon-card {
+  transition: all 0.3s ease;
+}
+.pokemon-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+.pokemon-card.can-evolve {
+  border-color: #f8c200 !important;
+  animation: evolve-glow 2s ease-in-out infinite;
+}
+
+.growth-bar { transition: width 0.5s ease; }
+
+.btn-grow { transition: all 0.15s ease; }
+.btn-grow:active { transform: scale(0.92); }
+
+.modal-overlay { backdrop-filter: blur(4px); }
+
+.type-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+}
+
+.pokemon-sprite {
+  image-rendering: pixelated;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.pokemon-sprite-loading {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  animation: pokeball-spin 1s linear infinite;
+}
+
+.evolve-btn {
+  background: linear-gradient(135deg, #f8c200, #ff6b00);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 7px 12px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 6px;
+  animation: evolve-ready-pulse 1.5s ease-in-out infinite;
+}
+.evolve-btn:hover { filter: brightness(1.12); transform: scale(1.02); }
+.evolve-btn:active { transform: scale(0.93); }
+
+/* Evolution progress indicator */
+.evolve-progress-wrap {
+  margin-top: 4px;
+}
+.evolve-progress-bar {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #f8c200, #ff6b00);
+  transition: width 0.5s ease;
+}
+
+/* Type colors */
+.type-normal   { background: #A8A77A; }
+.type-fire     { background: #EE8130; }
+.type-water    { background: #6390F0; }
+.type-electric { background: #F7D02C; color: #333 !important; }
+.type-grass    { background: #7AC74C; }
+.type-ice      { background: #96D9D6; color: #333 !important; }
+.type-fighting { background: #C22E28; }
+.type-poison   { background: #A33EA1; }
+.type-ground   { background: #E2BF65; color: #333 !important; }
+.type-flying   { background: #A98FF3; }
+.type-psychic  { background: #F95587; }
+.type-bug      { background: #A6B91A; }
+.type-rock     { background: #B6A136; }
+.type-ghost    { background: #735797; }
+.type-dragon   { background: #6F35FC; }
+.type-dark     { background: #705746; }
+.type-steel    { background: #B7B7CE; color: #333 !important; }
+.type-fairy    { background: #D685AD; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(200,200,255,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(150,150,255,0.4); border-radius: 4px; }
+  </style>
+</head>
+<body class="h-full" style="font-family: 'Nunito', sans-serif;">
+<div id="app" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 30%, #f5f0ff 70%, #fff0f8 100%);">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 px-4 py-3" style="background: rgba(255,255,255,0.88); backdrop-filter: blur(10px); border-bottom: 2px solid #c8d8ff;">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-3xl">⚡</span>
+        <h1 class="text-xl md:text-2xl font-black" style="color: #3d5af1; letter-spacing: -0.5px;">VSS BTK Pokemon Garden</h1>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <button onclick="openClassModal()" class="btn-grow flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold" style="background: #f0f5ff; color: #6c9bd1; border: 2px solid #c8e0ff;">
+          📚 <span class="hidden sm:inline">班级管理</span>
+        </button>
+        <button onclick="openLeaderboard()" class="btn-grow flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold" style="background: #fff8e8; color: #e8a44a; border: 2px solid #ffd966;">
+          🏆 <span class="hidden sm:inline">排行榜</span>
+        </button>
+        <button onclick="openBattleSelect()" class="btn-grow flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold" style="background: #fff0f0; color: #e05050; border: 2px solid #ffb3b3;">
+          ⚔️ <span class="hidden sm:inline">对战</span>
+        </button>
+        <button onclick="toggleManual()" class="btn-grow flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold" style="background: #f0f4ff; color: #3d5af1; border: 2px solid #c8d8ff;">
+          📖 <span class="hidden sm:inline">使用手册</span>
+        </button>
+        <button onclick="openAddModal()" class="btn-grow flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold text-white" style="background: linear-gradient(135deg, #3d5af1, #c84bf3); border: none;">
+          ＋ <span class="hidden sm:inline">收服宝可梦</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Count -->
+  <div class="max-w-5xl mx-auto px-4 pt-3">
+    <p id="pet-count" class="text-sm font-semibold" style="color: #b0b0b0;">⚡ 已收服 0/100 只宝可梦</p>
+  </div>
+
+  <!-- Class Tabs -->
+  <div class="max-w-5xl mx-auto px-4 py-3 overflow-x-auto">
+    <div id="class-tabs" class="flex gap-2" style="min-width: min-content;"></div>
+  </div>
+
+  <!-- Pokemon Grid -->
+  <main id="pet-grid" class="max-w-5xl mx-auto px-4 py-4 grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));"></main>
+
+  <!-- Empty State -->
+  <div id="empty-state" class="flex flex-col items-center justify-center py-16 px-4" style="display:none!important;">
+    <div class="text-7xl mb-4 float-anim">🥚</div>
+    <p class="text-xl font-bold mb-2" style="color: #3d5af1;">还没有宝可梦！</p>
+    <p class="text-sm" style="color: #b0b0b0;">点击「收服宝可梦」开始你的训练师之旅～</p>
+  </div>
+
+  <!-- Add Pokemon Modal -->
+  <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.35);">
+    <div class="bg-white rounded-3xl p-5 mx-4 w-full max-w-md shadow-2xl bounce-in" style="border: 3px solid #c8d8ff; max-height: 90vh; overflow-y: auto;">
+      <h2 class="text-lg font-black text-center mb-1" style="color: #3d5af1;">⚡ 收服新宝可梦</h2>
+      <p class="text-xs text-center mb-3" style="color: #999;">选择你最喜欢的宝可梦（图片加载中请稍等）</p>
+      <div class="mb-3 relative">
+        <input id="pokemon-search" type="text" placeholder="🔍 搜索宝可梦名称（英文）..." class="w-full px-4 py-2 rounded-xl text-sm font-semibold outline-none" style="border: 2px solid #c8d8ff; color: #333;" oninput="filterPokemonList(this.value)" onfocus="this.style.borderColor='#3d5af1'" onblur="this.style.borderColor='#c8d8ff'">
+      </div>
+      <div id="pet-select-grid" class="grid grid-cols-4 gap-2 mb-3" style="max-height: 240px; overflow-y: auto;"></div>
+      <input id="pet-name-input" type="text" maxlength="10" placeholder="给宝可梦取个昵称吧～" class="w-full px-4 py-2.5 rounded-xl text-center font-bold outline-none" style="border: 2px solid #c8d8ff; color: #3d5af1;" onfocus="this.style.borderColor='#3d5af1'" onblur="this.style.borderColor='#c8d8ff'">
+      <div class="flex gap-2 mt-4">
+        <button onclick="closeAddModal()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold" style="background: #f5f5f5; color: #999;">取消</button>
+        <button onclick="confirmAdd()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold text-white" style="background: linear-gradient(135deg, #3d5af1, #c84bf3);">确认收服 ⚡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Modal -->
+  <div id="manual-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.3);">
+    <div class="bg-white rounded-3xl p-6 mx-4 w-full max-w-md shadow-2xl bounce-in overflow-auto" style="border: 3px solid #c8d8ff; max-height: 85%;">
+      <h2 class="text-lg font-black text-center mb-3" style="color: #3d5af1;">📖 训练师手册</h2>
+      <div class="space-y-3 text-sm" style="color: #666; line-height: 1.8;">
+        <div class="p-3 rounded-xl" style="background: #f0f4ff;">
+          <p class="font-bold" style="color: #3d5af1;">⚡ 收服宝可梦</p>
+          <p>点击「收服宝可梦」按钮，选择你喜欢的宝可梦，图片和属性会从 PokéAPI 实时加载。</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: #fff8e8;">
+          <p class="font-bold" style="color: #e8a44a;">⬆️ 成长加分</p>
+          <p>点击 <b>+1</b> 或 <b>+5</b> 按钮，宝可梦会获得经验值，开心地跳舞，还会飘出爱心！</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: #fff0f0;">
+          <p class="font-bold" style="color: #e05050;">⬇️ 扣分</p>
+          <p>点击 <b>-1</b> 或 <b>-5</b> 按钮，宝可梦会失去经验值并难过摇头（最低为0）。</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: #f5fff5;">
+          <p class="font-bold" style="color: #5cb85c;">⭐ 等级系统</p>
+          <p>宝可梦等级从 Lv.1 开始，每 Lv×10 经验值升一级，升级有炫酷特效！</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: linear-gradient(135deg, #fffbf0, #fff5e0); border: 2px solid #ffd966;">
+          <p class="font-bold" style="color: #f8a000;">🌟 进化系统</p>
+          <p>当宝可梦<b>等级</b>达到 <b>进化所需等级</b>（卡片上有进度条显示），若有进化形态，卡片会发光并出现 <b>「✨ 立即进化！」</b> 按钮。</p>
+          <p class="mt-1">进化分为三个阶段：</p>
+          <ul class="mt-1 ml-3 space-y-1">
+            <li>🥚 <b>第一阶段</b>（如小火龙）→ 等级达到 <b>Lv.10</b> 可进化</li>
+            <li>🔥 <b>第二阶段</b>（如火恐龙）→ 等级达到 <b>Lv.20</b> 可进化</li>
+            <li>🏆 <b>最终形态</b>（如喷火龙）→ 无法再进化</li>
+          </ul>
+          <p class="mt-1">进化后保留当前经验值，昵称会自动更新为进化后的形态名称。</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: #faf5ff;">
+          <p class="font-bold" style="color: #9b59b6;">🔴 放生宝可梦</p>
+          <p>点击卡片右上角的 ✕ 按钮可以放生宝可梦，需要二次确认。</p>
+        </div>
+        <div class="p-3 rounded-xl" style="background: #f5f5f5;">
+          <p class="font-bold" style="color: #555;">💾 数据存储</p>
+          <p>数据保存在浏览器本地（localStorage），清除浏览器缓存会丢失数据，请注意备份。</p>
+        </div>
+      </div>
+      <button onclick="closeManual()" class="btn-grow w-full mt-4 py-2.5 rounded-xl font-bold text-white" style="background: linear-gradient(135deg, #3d5af1, #c84bf3);">知道啦！⚡</button>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.3);">
+    <div class="bg-white rounded-3xl p-6 mx-4 w-full max-w-xs shadow-2xl bounce-in text-center" style="border: 3px solid #ffd1dc;">
+      <div class="text-5xl mb-3">😢</div>
+      <p class="font-bold mb-1" style="color: #3d5af1;">确定要放生吗？</p>
+      <p id="delete-pet-name" class="text-sm mb-4" style="color: #999;"></p>
+      <div class="flex gap-2">
+        <button onclick="closeDeleteModal()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold" style="background: #f5f5f5; color: #999;">留下</button>
+        <button onclick="confirmDelete()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold text-white" style="background: #ff6b6b;">放生 👋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evolution Modal -->
+  <div id="evolve-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.6);">
+    <div class="bg-white rounded-3xl p-6 mx-4 w-full max-w-sm shadow-2xl bounce-in text-center" style="border: 3px solid #f8c200;">
+      <div class="text-4xl mb-2" style="animation: evolve-ready-pulse 1s ease-in-out infinite;">🌟</div>
+      <h3 class="text-lg font-black mb-1" style="color: #f8a000;">进化时刻到了！</h3>
+      <p id="evolve-desc" class="text-sm mb-2" style="color: #555;"></p>
+      <div class="flex items-center justify-center gap-4 my-4">
+        <div class="text-center">
+          <div class="rounded-2xl p-2 mx-auto" style="background: linear-gradient(135deg, #f0f4ff, #f5f0ff); border: 2px solid #c8d8ff; width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
+            <img id="evolve-from-img" src="" style="width:64px;height:64px;image-rendering:pixelated;object-fit:contain;" alt="">
+          </div>
+          <p id="evolve-from-name" class="text-xs font-bold mt-1" style="color: #555;"></p>
+          <p class="text-xs" style="color:#bbb;">当前形态</p>
+        </div>
+        <div style="font-size:28px;">✨</div>
+        <div class="text-center">
+          <div class="rounded-2xl p-2 mx-auto" style="background: linear-gradient(135deg, #fffbf0, #fff5e0); border: 2px solid #f8c200; width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
+            <img id="evolve-to-img" src="" style="width:64px;height:64px;image-rendering:pixelated;object-fit:contain;" alt="">
+          </div>
+          <p id="evolve-to-name" class="text-xs font-bold mt-1" style="color: #f8a000;"></p>
+          <p class="text-xs" style="color:#bbb;">进化形态</p>
+        </div>
+      </div>
+      <p id="evolve-next-hint" class="text-xs mb-3 p-2 rounded-xl" style="background:#f9f9f9; color:#888;"></p>
+      <div class="flex gap-2">
+        <button onclick="closeEvolveModal()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold" style="background: #f5f5f5; color: #999;">稍后再说</button>
+        <button onclick="confirmEvolve()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold text-white" style="background: linear-gradient(135deg, #f8c200, #ff6b00);">进化！🌟</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limit Warning -->
+  <div id="limit-toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-2xl font-bold text-white shadow-lg" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24);">
+    ⚠️ 最多只能收服100只宝可梦哦！
+  </div>
+
+  <!-- Evolve Toast -->
+  <div id="evolve-toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-2xl font-bold text-white shadow-lg text-center" style="background: linear-gradient(135deg, #f8c200, #ff6b00); white-space:nowrap;">
+    🌟 进化成功！恭喜！
+  </div>
+
+  <!-- Class Management Modal -->
+  <div id="class-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.3);">
+    <div class="bg-white rounded-3xl p-6 mx-4 w-full max-w-sm shadow-2xl bounce-in" style="border: 3px solid #c8e0ff;">
+      <h2 class="text-lg font-black text-center mb-4" style="color: #6c9bd1;">📚 班级管理</h2>
+      <div id="class-list" class="space-y-2 max-h-64 overflow-auto mb-4"></div>
+      <div class="flex gap-2 mb-4">
+        <input id="class-name-input" type="text" maxlength="12" placeholder="输入班级名称..." class="flex-1 px-4 py-2.5 rounded-xl text-center font-bold outline-none" style="border: 2px solid #c8e0ff; color: #6c9bd1;" onfocus="this.style.borderColor='#6c9bd1'" onblur="this.style.borderColor='#c8e0ff'">
+        <button onclick="addNewClass()" class="btn-grow px-4 py-2.5 rounded-xl font-bold text-white" style="background: #6c9bd1;">+</button>
+      </div>
+      <button onclick="closeClassModal()" class="btn-grow w-full py-2.5 rounded-xl font-bold text-white" style="background: #c084fc;">完成</button>
+    </div>
+  </div>
+
+  <!-- Effects Container -->
+  <div id="effects-container" class="fixed inset-0 pointer-events-none z-40"></div>
+
+  <!-- ===== Leaderboard Modal ===== -->
+  <div id="leaderboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-3xl p-5 mx-4 w-full max-w-md shadow-2xl bounce-in" style="border: 3px solid #ffd966; max-height: 88vh; display:flex; flex-direction:column;">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-black" style="color: #e8a44a;">🏆 宝可梦排行榜</h2>
+        <select id="lb-class-filter" onchange="renderLeaderboard()" class="text-sm font-bold rounded-xl px-2 py-1 outline-none" style="border:2px solid #ffd966; color:#e8a44a; background:#fffbf0;"></select>
+      </div>
+      <div id="leaderboard-list" class="overflow-y-auto flex-1 space-y-2 pr-1"></div>
+      <button onclick="closeLeaderboard()" class="btn-grow w-full mt-4 py-2.5 rounded-xl font-bold text-white flex-shrink-0" style="background: linear-gradient(135deg, #f8c200, #ff6b00);">关闭 🏆</button>
+    </div>
+  </div>
+
+  <!-- ===== Battle Select Modal ===== -->
+  <div id="battle-select-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay" style="background: rgba(0,0,0,0.45);">
+    <div class="bg-white rounded-3xl p-5 mx-4 w-full max-w-lg shadow-2xl bounce-in" style="border: 3px solid #ffb3b3; max-height: 90vh; display:flex; flex-direction:column;">
+      <h2 class="text-lg font-black text-center mb-1" style="color: #e05050;">⚔️ 选择对战宝可梦</h2>
+      <p class="text-xs text-center mb-3" style="color:#999;">从当前班级中各选一只宝可梦进行对战</p>
+      <div class="grid grid-cols-2 gap-3 mb-3 flex-1 overflow-hidden">
+        <div class="flex flex-col overflow-hidden">
+          <p class="text-xs font-bold mb-1 text-center flex-shrink-0" style="color:#3d5af1;">🔵 挑战者</p>
+          <div id="battle-pick-a" class="overflow-y-auto space-y-1.5 flex-1"></div>
+        </div>
+        <div class="flex flex-col overflow-hidden">
+          <p class="text-xs font-bold mb-1 text-center flex-shrink-0" style="color:#e05050;">🔴 迎战者</p>
+          <div id="battle-pick-b" class="overflow-y-auto space-y-1.5 flex-1"></div>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button onclick="closeBattleSelect()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold" style="background:#f5f5f5;color:#999;">取消</button>
+        <button onclick="startBattle()" class="btn-grow flex-1 py-2.5 rounded-xl font-bold text-white" style="background:linear-gradient(135deg,#e05050,#c84bf3);">开始对战 ⚔️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Battle Arena Modal ===== -->
+  <div id="battle-modal" class="fixed inset-0 hidden items-center justify-center" style="background:radial-gradient(ellipse at center,#1a0a3e 0%,#0d001a 70%,#000 100%); z-index:210;">
+    <div class="w-full max-w-lg mx-4" style="font-family:'Nunito',sans-serif;">
+      <!-- HP bars row -->
+      <div class="flex items-start justify-between gap-2 mb-4 px-2">
+        <div class="flex-1">
+          <div class="flex items-center gap-1 mb-1">
+            <span id="ba-name-a" class="text-xs font-black truncate" style="color:#80b4ff;max-width:100px;display:block;"></span>
+            <span id="ba-lv-a" class="text-xs font-bold flex-shrink-0" style="color:#5588cc;"></span>
+          </div>
+          <div class="w-full rounded-full overflow-hidden" style="height:8px;background:rgba(255,255,255,0.1);">
+            <div id="ba-hp-bar-a" class="h-full rounded-full" style="background:linear-gradient(90deg,#4ade80,#22c55e);width:100%;transition:width 0.5s ease;"></div>
+          </div>
+          <div id="ba-hp-text-a" class="text-xs mt-0.5 font-bold" style="color:#4ade80;"></div>
+        </div>
+        <div class="text-white font-black text-sm px-2 pt-1 flex-shrink-0">VS</div>
+        <div class="flex-1 text-right">
+          <div class="flex items-center justify-end gap-1 mb-1">
+            <span id="ba-lv-b" class="text-xs font-bold flex-shrink-0" style="color:#cc5588;"></span>
+            <span id="ba-name-b" class="text-xs font-black truncate" style="color:#ff80a0;max-width:100px;display:block;"></span>
+          </div>
+          <div class="w-full rounded-full overflow-hidden" style="height:8px;background:rgba(255,255,255,0.1);">
+            <div id="ba-hp-bar-b" class="h-full rounded-full" style="background:linear-gradient(90deg,#f87171,#ef4444);width:100%;transition:width 0.5s ease;"></div>
+          </div>
+          <div id="ba-hp-text-b" class="text-xs mt-0.5 font-bold text-right" style="color:#f87171;"></div>
+        </div>
+      </div>
+      <!-- Sprites -->
+      <div class="flex items-end justify-between px-8 mb-4" style="min-height:140px;">
+        <div style="position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;">
+          <img id="ba-sprite-a" src="" style="width:100px;height:100px;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 0 14px #4ade80);" alt="">
+          <div id="ba-dmg-a" style="display:none;position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#f87171;text-shadow:0 0 10px #f87171;pointer-events:none;"></div>
+          <div id="ba-heal-a" style="display:none;position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:900;color:#4ade80;text-shadow:0 0 10px #4ade80;pointer-events:none;"></div>
+        </div>
+        <div style="position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;">
+          <img id="ba-sprite-b" src="" style="width:100px;height:100px;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 0 14px #f87171);transform:scaleX(-1);" alt="">
+          <div id="ba-dmg-b" style="display:none;position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#f87171;text-shadow:0 0 10px #f87171;pointer-events:none;"></div>
+          <div id="ba-heal-b" style="display:none;position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:900;color:#4ade80;text-shadow:0 0 10px #4ade80;pointer-events:none;"></div>
+        </div>
+      </div>
+      <!-- Battle log -->
+      <div id="ba-log" class="rounded-2xl px-4 py-3 mb-3 overflow-y-auto" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);min-height:80px;max-height:110px;"></div>
+
+      <!-- Turn indicator -->
+      <div id="ba-turn-label" class="text-center text-xs font-bold mb-2" style="color:rgba(255,255,255,0.5);letter-spacing:0.5px;">选择招式</div>
+
+      <!-- Move grid (player side) -->
+      <div id="ba-move-panel" class="grid grid-cols-2 gap-2 mb-3">
+        <button onclick="playerPickMove('quick')" id="bmove-quick"
+          class="btn-grow py-2 px-3 rounded-xl font-bold text-sm text-white flex items-center gap-1.5"
+          style="background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;">
+          ⚡ 快速攻击<span class="text-xs opacity-70 ml-auto">确定命中</span>
+        </button>
+        <button onclick="playerPickMove('heavy')" id="bmove-heavy"
+          class="btn-grow py-2 px-3 rounded-xl font-bold text-sm text-white flex items-center gap-1.5"
+          style="background:linear-gradient(135deg,#e05050,#c0392b);border:none;">
+          💥 强力冲击<span class="text-xs opacity-70 ml-auto">高伤害</span>
+        </button>
+        <button onclick="playerPickMove('heal')" id="bmove-heal"
+          class="btn-grow py-2 px-3 rounded-xl font-bold text-sm text-white flex items-center gap-1.5"
+          style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;">
+          💚 恢复术<span class="text-xs opacity-70 ml-auto">回复HP</span>
+        </button>
+        <button onclick="playerPickMove('guard')" id="bmove-guard"
+          class="btn-grow py-2 px-3 rounded-xl font-bold text-sm text-white flex items-center gap-1.5"
+          style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;">
+          🛡️ 防守<span class="text-xs opacity-70 ml-auto">减伤一回合</span>
+        </button>
+      </div>
+
+      <!-- Bottom row: waiting indicator + end battle -->
+      <div class="flex items-center gap-2">
+        <div id="ba-waiting" class="hidden flex-1 text-center text-sm font-bold rounded-xl py-2" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">⏳ 等待对手...</div>
+        <button onclick="forceEndBattle()" class="btn-grow px-4 py-2 rounded-xl font-bold text-sm flex-shrink-0"
+          style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);">
+          🏳️ 结束战斗
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full-Screen Evolution Animation -->
+  <div id="evo-fullscreen" style="display:none;">
+    <div id="evo-white-flash" style="position:absolute;inset:0;background:white;pointer-events:none;opacity:0;"></div>
+    <div id="evo-sprite-stage" class="evo-sprite-stage">
+      <img id="evo-anim-img" src="" alt="" style="width:160px;height:160px;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 0 20px #f8c200);">
+    </div>
+    <div style="margin-top:24px;text-align:center;">
+      <div id="evo-label-text" style="font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;color:white;text-shadow:0 0 20px #f8c200,0 0 40px #ff6b00;letter-spacing:1px;"></div>
+      <div id="evo-label-sub" style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#f8c200;margin-top:6px;opacity:0;transition:opacity 0.5s;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== LocalStorage Data Layer =====
+const STORAGE_KEY = 'pokemon_garden_data';
+let _db = null;
+
+function loadDb() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    _db = raw ? JSON.parse(raw) : { records: [], nextId: 1 };
+  } catch { _db = { records: [], nextId: 1 }; }
+}
+
+function saveDb() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(_db)); } catch(e) { console.error('Save failed', e); }
+}
+
+function dbCreate(obj) {
+  const id = String(_db.nextId++);
+  const record = { ...obj, __id: id };
+  _db.records.push(record);
+  saveDb();
+  return record;
+}
+
+function dbUpdate(obj) {
+  const idx = _db.records.findIndex(r => r.__id === obj.__id);
+  if (idx !== -1) { _db.records[idx] = { ...obj }; saveDb(); }
+}
+
+function dbDelete(obj) {
+  _db.records = _db.records.filter(r => r.__id !== obj.__id);
+  saveDb();
+}
+
+function dbRead() { return _db.records; }
+
+// ===== PokeAPI Cache =====
+const pokeCache = {};
+const evoChainCache = {};
+
+async function fetchPokemon(nameOrId) {
+  const key = String(nameOrId).toLowerCase();
+  if (pokeCache[key]) return pokeCache[key];
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${key}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const info = {
+      id: data.id,
+      name: data.name,
+      sprite: data.sprites.front_default || data.sprites.other?.['official-artwork']?.front_default || '',
+      types: data.types.map(t => t.type.name),
+      speciesUrl: data.species.url
+    };
+    pokeCache[key] = info;
+    pokeCache[String(data.id)] = info;
+    return info;
+  } catch { return null; }
+}
+
+async function fetchEvolution(speciesUrl) {
+  if (evoChainCache[speciesUrl]) return evoChainCache[speciesUrl];
+  try {
+    const specRes = await fetch(speciesUrl);
+    const specData = await specRes.json();
+    const chainRes = await fetch(specData.evolution_chain.url);
+    const chainData = await chainRes.json();
+    const chain = [];
+    let cur = chainData.chain;
+    while (cur) {
+      chain.push(cur.species.name);
+      cur = cur.evolves_to?.[0] || null;
+    }
+    evoChainCache[speciesUrl] = chain;
+    return chain;
+  } catch { return null; }
+}
+
+// ===== Pokemon Data =====
+const STARTER_POKEMON = [
+  { id: 1, name: 'bulbasaur' }, { id: 4, name: 'charmander' }, { id: 7, name: 'squirtle' },
+  { id: 25, name: 'pikachu' }, { id: 39, name: 'jigglypuff' }, { id: 52, name: 'meowth' },
+  { id: 54, name: 'psyduck' }, { id: 66, name: 'machop' }, { id: 74, name: 'geodude' },
+  { id: 92, name: 'gastly' }, { id: 104, name: 'cubone' }, { id: 113, name: 'chansey' },
+  { id: 129, name: 'magikarp' }, { id: 133, name: 'eevee' }, { id: 143, name: 'snorlax' },
+  { id: 152, name: 'chikorita' }, { id: 155, name: 'cyndaquil' }, { id: 158, name: 'totodile' },
+  { id: 172, name: 'pichu' }, { id: 175, name: 'togepi' }, { id: 179, name: 'mareep' },
+  { id: 194, name: 'wooper' }, { id: 252, name: 'treecko' }, { id: 255, name: 'torchic' },
+  { id: 258, name: 'mudkip' }, { id: 300, name: 'skitty' }, { id: 351, name: 'castform' },
+  { id: 374, name: 'beldum' }, { id: 399, name: 'bidoof' }, { id: 403, name: 'shinx' },
+  { id: 443, name: 'gible' }, { id: 447, name: 'riolu' }, { id: 495, name: 'snivy' },
+  { id: 498, name: 'tepig' }, { id: 501, name: 'oshawott' }, { id: 570, name: 'zorua' },
+  { id: 582, name: 'vanillite' }, { id: 653, name: 'fennekin' }, { id: 656, name: 'froakie' },
+  { id: 722, name: 'rowlet' }, { id: 725, name: 'litten' }, { id: 728, name: 'popplio' },
+  { id: 776, name: 'turtonator' }, { id: 810, name: 'grookey' }, { id: 813, name: 'scorbunny' },
+  { id: 816, name: 'sobble' }, { id: 906, name: 'sprigatito' }, { id: 909, name: 'fuecoco' },
+  { id: 912, name: 'quaxly' },
+];
+
+const TYPE_LABELS = {
+  normal:'一般', fire:'火', water:'水', electric:'电', grass:'草', ice:'冰',
+  fighting:'格斗', poison:'毒', ground:'地面', flying:'飞行', psychic:'超能力',
+  bug:'虫', rock:'岩石', ghost:'幽灵', dragon:'龙', dark:'恶', steel:'钢', fairy:'妖精'
+};
+
+// ===== Evolution level thresholds by chain stage =====
+// Returns the required LEVEL (not XP) to evolve
+function evolveThreshold(chainIndex) {
+  return chainIndex === 0 ? 10 : 20;
+}
+
+let allPokemonData = {};
+let selectedPetType = null;
+let allPets = [];
+let allClasses = [];
+let activeClassId = null;
+let deletingPet = null;
+let evolvingPet = null;
+let evolveTarget = null;
+
+// ===== Load Select Grid =====
+async function loadSelectGrid(filter = '') {
+  const grid = document.getElementById('pet-select-grid');
+  const list = filter
+    ? STARTER_POKEMON.filter(p => p.name.includes(filter.toLowerCase()))
+    : STARTER_POKEMON;
+
+  grid.innerHTML = list.map(p => `
+    <button onclick="selectPetType('${p.name}')" id="sel-${p.name}"
+      class="btn-grow p-1.5 rounded-xl flex flex-col items-center gap-0.5"
+      style="background: #f9f9f9; border: 2px solid transparent; transition: all 0.2s; min-height: 80px;">
+      <div class="pokemon-sprite-loading" id="sprite-loading-${p.name}">⚪</div>
+      <img id="sprite-img-${p.name}" class="pokemon-sprite hidden" src="" alt="${p.name}" style="width:52px;height:52px;">
+      <span class="text-xs font-semibold capitalize" style="color: #888;">${p.name}</span>
+    </button>
+  `).join('');
+
+  list.forEach(async p => {
+    const info = await fetchPokemon(p.name);
+    const loadEl = document.getElementById(`sprite-loading-${p.name}`);
+    const imgEl = document.getElementById(`sprite-img-${p.name}`);
+    if (info?.sprite && imgEl && loadEl) {
+      imgEl.src = info.sprite;
+      imgEl.onload = () => { loadEl.remove(); imgEl.classList.remove('hidden'); };
+      imgEl.onerror = () => { if(loadEl) loadEl.textContent = '❓'; };
+    } else if (loadEl) {
+      loadEl.textContent = '❓';
+    }
+  });
+}
+
+function filterPokemonList(val) {
+  loadSelectGrid(val.trim());
+  selectedPetType = null;
+}
+
+function selectPetType(name) {
+  selectedPetType = name;
+  document.querySelectorAll('[id^="sel-"]').forEach(el => {
+    const isSelected = el.id === `sel-${name}`;
+    el.style.borderColor = isSelected ? '#3d5af1' : 'transparent';
+    el.style.background = isSelected ? '#f0f4ff' : '#f9f9f9';
+  });
+  const nameInput = document.getElementById('pet-name-input');
+  if (!nameInput.value.trim()) nameInput.value = name;
+}
+
+// ===== Class Management =====
+function loadClasses() {
+  const all = dbRead();
+  const classRecords = all.filter(r => r.type === 'class');
+  allClasses = classRecords.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  if (allClasses.length === 0) {
+    dbCreate({ type: 'class', pet_name: '默认班级', created_at: new Date().toISOString() });
+    allClasses = dbRead().filter(r => r.type === 'class');
+  }
+
+  if (!activeClassId || !allClasses.some(c => c.__id === activeClassId)) {
+    activeClassId = allClasses.length > 0 ? allClasses[0].__id : null;
+  }
+  renderClassTabs();
+}
+
+function addNewClass() {
+  const name = document.getElementById('class-name-input').value.trim();
+  if (!name) return;
+  document.getElementById('class-name-input').value = '';
+  dbCreate({ type: 'class', pet_name: name, created_at: new Date().toISOString() });
+  loadClasses();
+  refreshAllPets();
+  closeClassModal();
+}
+
+function deleteClass(classId) {
+  const classRecord = allClasses.find(c => c.__id === classId);
+  if (!classRecord) return;
+  dbDelete(classRecord);
+  const petsInClass = allPets.filter(p => p.class_id === classId);
+  petsInClass.forEach(pet => dbDelete(pet));
+  loadClasses();
+  refreshAllPets();
+}
+
+function renderClassTabs() {
+  const tabs = document.getElementById('class-tabs');
+  tabs.innerHTML = allClasses.map(cls => `
+    <button onclick="switchClass('${cls.__id}')" class="btn-grow px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all"
+      style="background: ${activeClassId===cls.__id ? 'linear-gradient(135deg,#3d5af1,#c84bf3)' : '#f5f5f5'}; color: ${activeClassId===cls.__id ? 'white' : '#999'}; border: 2px solid ${activeClassId===cls.__id ? '#3d5af1' : 'transparent'};">
+      ${cls.pet_name}
+    </button>
+  `).join('');
+}
+
+function switchClass(classId) {
+  activeClassId = classId;
+  renderClassTabs();
+  refreshAllPets();
+}
+
+function openClassModal() {
+  document.getElementById('class-name-input').value = '';
+  document.getElementById('class-list').innerHTML = allClasses.map(cls => `
+    <div class="flex items-center justify-between p-3 rounded-xl" style="background:#f9f9f9;">
+      <span class="font-bold" style="color:#333;">${cls.pet_name}</span>
+      <button onclick="deleteClass('${cls.__id}')" class="btn-grow text-xs px-2 py-1 rounded-lg" style="background:#ffebee;color:#ff6b6b;border:none;">删除</button>
+    </div>
+  `).join('');
+  const modal = document.getElementById('class-modal');
+  modal.classList.remove('hidden'); modal.style.display = 'flex';
+}
+function closeClassModal() { const m = document.getElementById('class-modal'); m.classList.add('hidden'); m.style.display = 'none'; }
+
+// ===== Data Refresh =====
+function refreshAllPets() {
+  allPets = dbRead().filter(r => r.type === 'pet');
+  renderPets();
+}
+
+// ===== Level System =====
+function growthForLevel(level) { return level * 10; }
+function getLevelFromGrowth(totalGrowth) {
+  let level = 1, accumulated = 0;
+  while (true) {
+    const needed = growthForLevel(level);
+    if (accumulated + needed > totalGrowth) break;
+    accumulated += needed;
+    level++;
+    if (level > 99) break;
+  }
+  return { level, currentInLevel: totalGrowth - accumulated, neededForNext: growthForLevel(level) };
+}
+
+function levelColor(lv) {
+  if (lv >= 50) return '#ff2d55';   // Lv50+ 深红玫瑰
+  if (lv >= 40) return '#c0392b';   // Lv40 暗红
+  if (lv >= 35) return '#e84393';   // Lv35 玫红
+  if (lv >= 30) return '#8e44ad';   // Lv30 深紫
+  if (lv >= 25) return '#c84bf3';   // Lv25 亮紫
+  if (lv >= 20) return '#e74c3c';   // Lv20 红
+  if (lv >= 15) return '#e67e22';   // Lv15 橙
+  if (lv >= 10) return '#f1c40f';   // Lv10 金黄
+  if (lv >=  5) return '#27ae60';   // Lv5  绿
+  if (lv >=  3) return '#2ecc71';   // Lv3  浅绿
+  return '#3d5af1';                  // Lv1-2 蓝
+}
+
+function moodEmoji(mood) { return mood === 'happy' ? '😊' : mood === 'sad' ? '😢' : '😐'; }
+
+// ===== 核心音效系统 (Audio Context) =====
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function getAudio() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+
+/** 播放基础音调 */
+function playTone(freq, duration, type = 'sine', vol = 0.15, fadeOut = true) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    if(fadeOut) gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + duration);
+    return { osc, gain };
+  } catch(e) { return null; }
+}
+
+function soundGrow() { playTone(523, 0.12); setTimeout(() => playTone(659, 0.12), 80); }
+function soundSad() { playTone(330, 0.25, 'triangle', 0.12); setTimeout(() => playTone(262, 0.3, 'triangle', 0.12), 150); }
+function soundLevelUp() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'square', 0.1), i * 120)); }
+function soundAdopt() { playTone(440, 0.1); setTimeout(() => playTone(554, 0.1), 100); setTimeout(() => playTone(659, 0.15), 200); }
+
+/** 进化音效序列 */
+function soundEvolveStart() {
+    // 蓄力上升音
+    for(let i=0; i<15; i++) {
+        setTimeout(() => playTone(200 + (i*50), 0.2, 'sine', 0.05 + (i*0.01)), i * 150);
+    }
+}
+function soundEvolveFlash() {
+    playTone(880, 0.1, 'square', 0.1);
+}
+function soundEvolveSuccess() {
+    // 成功的华丽琶音
+    [523, 659, 784, 1047, 1318].forEach((f, i) => {
+        setTimeout(() => playTone(f, 0.6, 'sine', 0.15), i * 100);
+    });
+    // 增加一个重低音增强厚度
+    playTone(130, 1.5, 'triangle', 0.2);
+}
+
+// ===== Effects =====
+function spawnEffect(cardEl, type) {
+  const rect = cardEl.getBoundingClientRect();
+  const container = document.getElementById('effects-container');
+  const count = type === 'levelup' || type === 'evolve' ? 18 : 3;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;pointer-events:none;font-size:${type === 'levelup' || type === 'evolve' ? '22' : '16'}px;z-index:41;`;
+    el.style.left = (rect.left + Math.random() * rect.width) + 'px';
+    el.style.top = (rect.top + rect.height * 0.3) + 'px';
+    if (type === 'heart') { el.textContent = ['❤️', '💕', '💖'][Math.floor(Math.random() * 3)]; el.style.animation = `heart-float ${0.8 + Math.random() * 0.5}s ease-out forwards`; }
+    else if (type === 'tear') { el.textContent = '💧'; el.style.animation = `tear-drop 0.6s ease-in forwards`; }
+    else if (type === 'levelup') { el.textContent = ['⭐', '🌟', '✨', '🎉', '🎊'][Math.floor(Math.random() * 5)]; el.style.animation = `confetti-fall ${0.8 + Math.random() * 0.6}s ease-out forwards`; el.style.animationDelay = (Math.random() * 0.3) + 's'; }
+    else if (type === 'evolve') { el.textContent = ['🌟', '✨', '💫', '⭐', '🌈', '💥', '🔥'][Math.floor(Math.random() * 7)]; el.style.animation = `confetti-fall ${1 + Math.random() * 0.8}s ease-out forwards`; el.style.animationDelay = (Math.random() * 0.4) + 's'; }
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+// ===== Render Pet Card =====
+function createPetCard(pet) {
+  const info = getLevelFromGrowth(pet.growth);
+  const pct = Math.min(100, (info.currentInLevel / info.neededForNext) * 100);
+  const evoLevelReq = pet.evolve_threshold || 10;
+  const canEvolve = pet.evolution_target && info.level >= evoLevelReq;
+  const evoThreshold = evoLevelReq;
+  const evoPct = Math.min(100, (info.level / evoThreshold) * 100);
+
+  const cached = allPokemonData[pet.pet_type];
+  const sprite = cached?.sprite || '';
+  const types = cached?.types || [];
+
+  const card = document.createElement('div');
+  card.className = 'pokemon-card bounce-in rounded-3xl p-4 relative' + (canEvolve ? ' can-evolve' : '');
+  card.dataset.petId = pet.__id;
+  card.dataset.petType = pet.pet_type;
+  card.style.cssText = 'background: white; border: 2px solid #c8d8ff; box-shadow: 0 4px 15px rgba(61,90,241,0.08);';
+
+  const typesBadges = types.map(t => `<span class="type-badge type-${t}">${TYPE_LABELS[t] || t}</span>`).join('');
+
+  card.innerHTML = `
+    <button onclick="askDelete('${pet.__id}')" class="btn-grow absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs" style="background:#fff0f0;color:#ff9999;border:none;">✕</button>
+    <div class="flex items-center gap-3 mb-3">
+      <div class="pokemon-sprite-wrap rounded-2xl w-20 h-20 flex-shrink-0 overflow-hidden float-anim flex items-center justify-center" style="background: linear-gradient(135deg, #f0f4ff, #f5f0ff); border: 2px solid ${canEvolve ? '#f8c200' : '#c8d8ff'}; position:relative;">
+        ${sprite
+          ? `<img src="${sprite}" class="pokemon-sprite" alt="${pet.pet_type}" style="width:68px;height:68px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+             <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:28px;">❓</div>`
+          : `<div style="font-size:28px;" class="pokemon-sprite-loading">⚪</div>`}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="font-black text-base truncate capitalize" style="color: #333;">${pet.pet_name || pet.pet_type}</span>
+          <span class="text-sm">${moodEmoji(pet.mood)}</span>
+        </div>
+        <div class="flex items-center gap-1 mt-0.5 flex-wrap">
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold text-white" style="background: ${levelColor(info.level)};">Lv.${info.level}</span>
+          ${typesBadges}
+        </div>
+        <div class="text-xs mt-1" style="color:#bbb;">经验值 ${pet.growth} · #${String(pet.pokemon_id || '?').padStart(3, '0')}</div>
+      </div>
+    </div>
+    <div class="mb-2">
+      <div class="flex justify-between text-xs mb-1">
+        <span style="color:#999;">升级进度</span>
+        <span class="font-bold prog-label" style="color:${levelColor(info.level)};">${info.currentInLevel}/${info.neededForNext}</span>
+      </div>
+      <div class="w-full h-3 rounded-full overflow-hidden" style="background:#f0f0f0;">
+        <div class="growth-bar h-full rounded-full" style="width:${pct}%;background:linear-gradient(90deg,${levelColor(info.level)},${levelColor(info.level)}cc);"></div>
+      </div>
+    </div>
+    ${pet.evolution_target ? `
+    <div class="evolve-progress-wrap mb-2">
+      <div class="flex justify-between text-xs mb-1">
+        <span style="color:${canEvolve ? '#f8a000' : '#bbb'};">${canEvolve ? '🌟 可以进化了！' : `🥚 进化需要 Lv.${evoThreshold}`}</span>
+        <span class="font-bold" style="color:${canEvolve ? '#f8a000' : '#ccc'};">Lv.${Math.min(info.level, evoThreshold)}/${evoThreshold}</span>
+      </div>
+      <div class="w-full rounded-full overflow-hidden" style="height:5px;background:#f0f0f0;">
+        <div class="evolve-progress-bar" style="width:${evoPct}%;"></div>
+      </div>
+    </div>` : ''}
+    <div class="flex gap-1.5 flex-wrap">
+      <button onclick="changeGrowth('${pet.__id}',1)" class="btn-grow flex-1 py-2 rounded-xl font-bold text-white text-xs" style="background:#5cb85c;border:none;min-width:40px;">+1 ⚡</button>
+      <button onclick="changeGrowth('${pet.__id}',5)" class="btn-grow flex-1 py-2 rounded-xl font-bold text-white text-xs" style="background:#4a9e4a;border:none;min-width:40px;">+5 🌟</button>
+      <button onclick="changeGrowth('${pet.__id}',-1)" class="btn-grow flex-1 py-2 rounded-xl font-bold text-white text-xs" style="background:#ff8a8a;border:none;min-width:40px;">-1 💔</button>
+      <button onclick="changeGrowth('${pet.__id}',-5)" class="btn-grow flex-1 py-2 rounded-xl font-bold text-white text-xs" style="background:#ff6b6b;border:none;min-width:40px;">-5 😢</button>
+      ${canEvolve ? `<button onclick="askEvolve('${pet.__id}')" class="evolve-btn">✨ 立即进化！</button>` : ''}
+    </div>
+  `;
+
+  if (!sprite) loadSpriteForCard(card, pet.pet_type);
+  return card;
+}
+
+async function loadSpriteForCard(card, pokemonName) {
+  const info = await fetchPokemon(pokemonName);
+  if (!info) return;
+  allPokemonData[pokemonName] = { sprite: info.sprite, types: info.types };
+  const wrap = card.querySelector('.pokemon-sprite-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = info.sprite
+    ? `<img src="${info.sprite}" class="pokemon-sprite" alt="${pokemonName}" style="width:68px;height:68px;" onerror="this.style.display='none'">`
+    : `<div style="font-size:28px;">❓</div>`;
+  const typesBadges = info.types.map(t => `<span class="type-badge type-${t}">${TYPE_LABELS[t] || t}</span>`).join('');
+  const lvRow = card.querySelector('.flex.items-center.gap-1.mt-0\\.5');
+  if (lvRow) {
+    lvRow.querySelectorAll('.type-badge').forEach(b => b.remove());
+    lvRow.insertAdjacentHTML('beforeend', typesBadges);
+  }
+}
+
+function updatePetCard(card, pet) {
+  const info = getLevelFromGrowth(pet.growth);
+  const pct = Math.min(100, (info.currentInLevel / info.neededForNext) * 100);
+  const evoLevelReq = pet.evolve_threshold || 10;
+  const canEvolve = pet.evolution_target && info.level >= evoLevelReq;
+  const evoThreshold = evoLevelReq;
+  const evoPct = Math.min(100, (info.level / evoThreshold) * 100);
+
+  if (canEvolve) { card.classList.add('can-evolve'); }
+  else { card.classList.remove('can-evolve'); }
+
+  card.querySelector('.font-black').textContent = pet.pet_name || pet.pet_type;
+  const lvBadge = card.querySelector('.rounded-full.text-xs.font-bold');
+  if (lvBadge) { lvBadge.textContent = `Lv.${info.level}`; lvBadge.style.background = levelColor(info.level); }
+  const progLabel = card.querySelector('.prog-label');
+  if (progLabel) { progLabel.textContent = `${info.currentInLevel}/${info.neededForNext}`; progLabel.style.color = levelColor(info.level); }
+  const bar = card.querySelector('.growth-bar');
+  if (bar) { bar.style.width = pct + '%'; bar.style.background = `linear-gradient(90deg,${levelColor(info.level)},${levelColor(info.level)}cc)`; }
+  const xpEl = card.querySelector('.text-xs[style*="bbb"]');
+  if (xpEl) xpEl.textContent = `经验值 ${pet.growth} · #${String(pet.pokemon_id || '?').padStart(3, '0')}`;
+  card.querySelectorAll('.text-sm').forEach(el => { if (['😊', '😢', '😐'].includes(el.textContent)) el.textContent = moodEmoji(pet.mood); });
+
+  const evolveProg = card.querySelector('.evolve-progress-wrap');
+  if (evolveProg) {
+    const evLabel = evolveProg.querySelector('span:first-child');
+    const evCount = evolveProg.querySelector('span.font-bold');
+    const evBar = evolveProg.querySelector('.evolve-progress-bar');
+    if (evLabel) evLabel.textContent = canEvolve ? '🌟 可以进化了！' : `🥚 进化需要 Lv.${evoThreshold}`;
+    if (evLabel) evLabel.style.color = canEvolve ? '#f8a000' : '#bbb';
+    if (evCount) { evCount.textContent = `Lv.${Math.min(info.level, evoThreshold)}/${evoThreshold}`; evCount.style.color = canEvolve ? '#f8a000' : '#ccc'; }
+    if (evBar) evBar.style.width = evoPct + '%';
+  }
+
+  let evolveBtn = card.querySelector('.evolve-btn');
+  if (canEvolve && !evolveBtn) {
+    const btnRow = card.querySelector('.flex.gap-1\\.5');
+    if (btnRow) btnRow.insertAdjacentHTML('beforeend', `<button onclick="askEvolve('${pet.__id}')" class="evolve-btn">✨ 立即进化！</button>`);
+  } else if (!canEvolve && evolveBtn) {
+    evolveBtn.remove();
+  }
+
+  const spriteWrap = card.querySelector('.pokemon-sprite-wrap');
+  if (spriteWrap) spriteWrap.style.borderColor = canEvolve ? '#f8c200' : '#c8d8ff';
+
+  const cached = allPokemonData[pet.pet_type];
+  const typeChanged = card.dataset.petType !== pet.pet_type;
+  if (typeChanged) card.dataset.petType = pet.pet_type;
+  if (cached?.sprite) {
+    const wrap = card.querySelector('.pokemon-sprite-wrap');
+    if (wrap) {
+      const currentImg = wrap.querySelector('img');
+      if (!currentImg || typeChanged) {
+        wrap.innerHTML = `<img src="${cached.sprite}" class="pokemon-sprite" alt="${pet.pet_type}" style="width:68px;height:68px;" onerror="this.style.display='none'">`;
+      }
+    }
+  } else if (typeChanged) {
+    loadSpriteForCard(card, pet.pet_type);
+  }
+}
+
+// ===== Render All =====
+function renderPets() {
+  const grid = document.getElementById('pet-grid');
+  const empty = document.getElementById('empty-state');
+  const classedPets = allPets.filter(p => p.class_id === activeClassId);
+  document.getElementById('pet-count').textContent = `⚡ 已收服 ${classedPets.length}/100 只宝可梦`;
+
+  if (classedPets.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const existing = new Map([...grid.children].map(el => [el.dataset.petId, el]));
+  const dataIds = new Set(classedPets.map(p => p.__id));
+  existing.forEach((el, id) => { if (!dataIds.has(id)) el.remove(); });
+  classedPets.forEach(pet => {
+    if (existing.has(pet.__id)) updatePetCard(existing.get(pet.__id), pet);
+    else grid.appendChild(createPetCard(pet));
+  });
+}
+
+// ===== Growth Change =====
+async function changeGrowth(id, delta) {
+  const pet = allPets.find(p => p.__id === id);
+  if (!pet) return;
+  const oldLevel = getLevelFromGrowth(pet.growth).level;
+  const newGrowth = Math.max(0, pet.growth + delta);
+  const newLevel = getLevelFromGrowth(newGrowth).level;
+  const mood = delta > 0 ? 'happy' : delta < 0 ? 'sad' : pet.mood;
+  const card = document.querySelector(`[data-pet-id="${id}"]`);
+
+  if (delta > 0) {
+    soundGrow();
+    if (card) {
+      spawnEffect(card, 'heart');
+      card.querySelector('.pokemon-sprite-wrap')?.classList.add('wiggle');
+      setTimeout(() => card.querySelector('.pokemon-sprite-wrap')?.classList.remove('wiggle'), 500);
+    }
+  } else {
+    soundSad();
+    if (card) { spawnEffect(card, 'tear'); card.classList.add('sad-anim'); setTimeout(() => card.classList.remove('sad-anim'), 500); }
+  }
+
+  if (newLevel > oldLevel && card) {
+    setTimeout(() => {
+      soundLevelUp();
+      card.classList.add('level-up-anim');
+      spawnEffect(card, 'levelup');
+      setTimeout(() => card.classList.remove('level-up-anim'), 1000);
+    }, 200);
+  }
+
+  const updated = { ...pet, growth: newGrowth, mood };
+  dbUpdate(updated);
+  allPets = allPets.map(p => p.__id === id ? updated : p);
+  renderPets();
+}
+
+// ===== Evolution =====
+async function askEvolve(id) {
+  const pet = allPets.find(p => p.__id === id);
+  if (!pet || !pet.evolution_target) return;
+  evolvingPet = pet;
+  evolveTarget = pet.evolution_target;
+
+  const fromInfo = await fetchPokemon(pet.pet_type);
+  const toInfo = await fetchPokemon(evolveTarget);
+
+  let nextNextEvo = null;
+  if (toInfo?.speciesUrl) {
+    const chain = await fetchEvolution(toInfo.speciesUrl);
+    if (chain) {
+      const idx = chain.indexOf(evolveTarget);
+      if (idx !== -1 && idx + 1 < chain.length) nextNextEvo = chain[idx + 1];
+    }
+  }
+
+  document.getElementById('evolve-desc').textContent = `${pet.pet_name || pet.pet_type} 想要进化成 ${evolveTarget}！`;
+  document.getElementById('evolve-from-img').src = fromInfo?.sprite || '';
+  document.getElementById('evolve-from-name').textContent = pet.pet_name || pet.pet_type;
+  document.getElementById('evolve-to-img').src = toInfo?.sprite || '';
+  document.getElementById('evolve-to-name').textContent = evolveTarget;
+
+  const hint = document.getElementById('evolve-next-hint');
+  if (nextNextEvo) {
+    hint.textContent = `进化后还能继续进化成 ${nextNextEvo}（需要达到更高等级）`;
+    hint.style.display = 'block';
+  } else {
+    hint.textContent = `${evolveTarget} 是最终进化形态 🏆`;
+    hint.style.display = 'block';
+  }
+
+  const modal = document.getElementById('evolve-modal');
+  modal.classList.remove('hidden'); modal.style.display = 'flex';
+}
+
+function closeEvolveModal() {
+  evolvingPet = null; evolveTarget = null;
+  const m = document.getElementById('evolve-modal');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
+
+async function confirmEvolve() {
+  if (!evolvingPet || !evolveTarget) return;
+  const pet = evolvingPet;
+  const targetName = evolveTarget;
+  closeEvolveModal();
+
+  const fromInfo = await fetchPokemon(pet.pet_type);
+  const toInfo = await fetchPokemon(targetName);
+  if (toInfo) allPokemonData[targetName] = { sprite: toInfo.sprite, types: toInfo.types };
+
+  let nextEvo = null;
+  let nextThreshold = null;
+  if (toInfo?.speciesUrl) {
+    const chain = await fetchEvolution(toInfo.speciesUrl);
+    if (chain) {
+      const idx = chain.indexOf(targetName);
+      if (idx !== -1 && idx + 1 < chain.length) {
+        nextEvo = chain[idx + 1];
+        nextThreshold = evolveThreshold(idx);
+      }
+    }
+  }
+
+  const newName = (pet.pet_name === pet.pet_type || pet.pet_name === pet.pet_type.charAt(0).toUpperCase() + pet.pet_type.slice(1))
+    ? targetName : pet.pet_name;
+
+  const updated = {
+    ...pet,
+    pet_type: targetName,
+    pet_name: newName,
+    pokemon_id: toInfo?.id || pet.pokemon_id,
+    evolution_target: nextEvo || null,
+    evolve_threshold: nextEvo ? (nextThreshold || 100) : null,
+    mood: 'happy'
+  };
+
+  // 执行全屏动画及同步音效
+  await playEvoAnimation(fromInfo?.sprite || '', toInfo?.sprite || '', pet.pet_name || pet.pet_type, newName, targetName);
+
+  dbUpdate(updated);
+  allPets = allPets.map(p => p.__id === pet.__id ? updated : p);
+
+  const card = document.querySelector(`[data-pet-id="${pet.__id}"]`);
+  if (card) {
+    const wrap = card.querySelector('.pokemon-sprite-wrap');
+    if (wrap && toInfo?.sprite) {
+      wrap.innerHTML = `<img src="${toInfo.sprite}" class="pokemon-sprite" alt="${targetName}" style="width:68px;height:68px;" onerror="this.style.display='none'">`;
+    }
+    spawnEffect(card, 'evolve');
+  }
+
+  const toast = document.getElementById('evolve-toast');
+  toast.textContent = `🌟 ${pet.pet_name} 进化成了 ${targetName}！`;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3000);
+
+  renderPets();
+}
+
+/** 播放进化全屏动画及关联音效 */
+function playEvoAnimation(fromSprite, toSprite, fromName, toName, targetSpecies) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('evo-fullscreen');
+    const animImg = document.getElementById('evo-anim-img');
+    const labelText = document.getElementById('evo-label-text');
+    const labelSub = document.getElementById('evo-label-sub');
+    const whiteFlash = document.getElementById('evo-white-flash');
+
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '0';
+    animImg.src = fromSprite;
+    animImg.style.filter = 'drop-shadow(0 0 20px #f8c200)';
+    animImg.style.transform = 'scale(1)';
+    animImg.style.opacity = '1';
+    animImg.style.transition = '';
+    labelText.textContent = fromName + ' 正在进化...';
+    labelText.style.opacity = '0';
+    labelSub.style.opacity = '0';
+    whiteFlash.style.opacity = '0';
+
+    overlay.querySelectorAll('.evo-ring,.evo-star').forEach(e => e.remove());
+
+    // 1. 播放蓄力背景音
+    soundEvolveStart();
+
+    requestAnimationFrame(() => {
+      overlay.style.transition = 'opacity 0.4s ease';
+      overlay.style.opacity = '1';
+    });
+
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    (async () => {
+      await delay(400);
+      labelText.style.transition = 'opacity 0.4s';
+      labelText.style.opacity = '1';
+
+      // 进化预热：环绕特效
+      for (let i = 0; i < 5; i++) {
+        await delay(i === 0 ? 300 : 250);
+        spawnEvoRing(overlay);
+        if (i < 3) spawnEvoStar(overlay);
+      }
+
+      await delay(400);
+
+      // 2. 闪烁变身阶段
+      labelText.textContent = '✨ 进化中...';
+      animImg.style.transition = 'all 1.8s ease-in';
+      animImg.style.filter = 'brightness(8) saturate(0) drop-shadow(0 0 40px white)';
+      animImg.style.transform = 'scale(1.3)';
+      animImg.style.opacity = '0';
+
+      let flashCount = 0;
+      const flashInterval = setInterval(() => {
+        flashCount++;
+        whiteFlash.style.transition = 'opacity 0.15s';
+        whiteFlash.style.opacity = flashCount % 2 === 0 ? '0' : String(0.3 + Math.min(flashCount * 0.1, 0.6));
+        // 每次闪烁播放一个急促的电子音
+        if(flashCount % 2 !== 0) soundEvolveFlash();
+        if (flashCount >= 10) clearInterval(flashInterval);
+      }, 180);
+
+      await delay(1800);
+      clearInterval(flashInterval);
+
+      // 3. 终极闪光爆发
+      whiteFlash.style.transition = 'opacity 0.25s';
+      whiteFlash.style.opacity = '1';
+      // 播放爆发成功音
+      soundEvolveSuccess();
+      
+      await delay(350);
+
+      animImg.style.transition = 'none';
+      animImg.src = toSprite;
+      animImg.style.transform = 'scale(0.5)';
+      animImg.style.filter = 'brightness(8) saturate(0) drop-shadow(0 0 40px white)';
+      animImg.style.opacity = '0';
+
+      await delay(100);
+
+      whiteFlash.style.transition = 'opacity 0.6s';
+      whiteFlash.style.opacity = '0';
+
+      animImg.style.transition = 'all 1s ease-out';
+      animImg.style.transform = 'scale(1.15)';
+      animImg.style.filter = 'brightness(2) saturate(1.5) drop-shadow(0 0 30px #f8c200)';
+      animImg.style.opacity = '1';
+
+      await delay(500);
+
+      animImg.style.transition = 'all 0.5s ease-out';
+      animImg.style.transform = 'scale(1)';
+      animImg.style.filter = 'drop-shadow(0 0 16px #f8c200)';
+
+      labelText.style.transition = 'opacity(0.2s)';
+      labelText.style.opacity = '0';
+      await delay(200);
+      labelText.textContent = toName;
+      labelText.style.opacity = '1';
+
+      await delay(200);
+      labelSub.textContent = `🎉 进化成功！`;
+      labelSub.style.transition = 'opacity 0.4s';
+      labelSub.style.opacity = '1';
+
+      for (let i = 0; i < 4; i++) {
+        spawnEvoStar(overlay);
+        await delay(150);
+      }
+
+      await delay(1200);
+      overlay.style.transition = 'opacity 0.6s ease';
+      overlay.style.opacity = '0';
+      await delay(650);
+      overlay.style.display = 'none';
+      resolve();
+    })();
+  });
+}
+
+function spawnEvoRing(parent) {
+  const ring = document.createElement('div');
+  const size = 80 + Math.random() * 120;
+  ring.className = 'evo-ring';
+  ring.style.cssText = `width:${size}px;height:${size}px;animation:evo-ring-expand ${0.9 + Math.random() * 0.5}s ease-out forwards;border-color:rgba(${Math.random()>0.5?'255,220,0':'200,120,255'},0.7);`;
+  parent.appendChild(ring);
+  setTimeout(() => ring.remove(), 1500);
+}
+
+function spawnEvoStar(parent) {
+  const stars = ['⭐','🌟','✨','💫','🔥','💥'];
+  const s = document.createElement('div');
+  s.className = 'evo-star';
+  const angle = Math.random() * 360;
+  const dist = 80 + Math.random() * 130;
+  const x = Math.cos(angle * Math.PI / 180) * dist;
+  const y = Math.sin(angle * Math.PI / 180) * dist;
+  s.textContent = stars[Math.floor(Math.random() * stars.length)];
+  s.style.cssText = `left:calc(50% + ${x}px);top:calc(45% + ${y}px);font-size:${20+Math.random()*18}px;animation:evo-star-spin ${1+Math.random()*0.6}s ease-in-out forwards;animation-delay:${Math.random()*0.2}s;`;
+  parent.appendChild(s);
+  setTimeout(() => s.remove(), 2000);
+}
+
+// ===== Add Pokemon =====
+function openAddModal() {
+  if (!activeClassId) { alert('请先创建一个班级！'); return; }
+  const count = allPets.filter(p => p.class_id === activeClassId).length;
+  if (count >= 100) { showLimitToast(); return; }
+  selectedPetType = null;
+  document.getElementById('pet-name-input').value = '';
+  document.getElementById('pokemon-search').value = '';
+  const modal = document.getElementById('add-modal');
+  modal.classList.remove('hidden'); modal.style.display = 'flex';
+  loadSelectGrid('');
+}
+
+function closeAddModal() { const m = document.getElementById('add-modal'); m.classList.add('hidden'); m.style.display = 'none'; }
+
+async function confirmAdd() {
+  if (!selectedPetType) return;
+  if (!activeClassId) return;
+  const count = allPets.filter(p => p.class_id === activeClassId).length;
+  if (count >= 100) { showLimitToast(); closeAddModal(); return; }
+
+  const name = document.getElementById('pet-name-input').value.trim() || selectedPetType;
+  closeAddModal();
+
+  const info = await fetchPokemon(selectedPetType);
+  if (info) allPokemonData[selectedPetType] = { sprite: info.sprite, types: info.types };
+
+  let evoTarget = null;
+  let evoThresh = 50;
+  if (info?.speciesUrl) {
+    const chain = await fetchEvolution(info.speciesUrl);
+    if (chain) {
+      const idx = chain.indexOf(selectedPetType);
+      if (idx !== -1 && idx + 1 < chain.length) {
+        evoTarget = chain[idx + 1];
+        evoThresh = evolveThreshold(idx);
+      }
+    }
+  }
+
+  soundAdopt();
+
+  const newPet = {
+    type: 'pet',
+    pet_type: selectedPetType,
+    pet_name: name,
+    pokemon_id: info?.id || 0,
+    growth: 0,
+    level: 1,
+    mood: 'happy',
+    class_id: activeClassId,
+    evolution_target: evoTarget,
+    evolve_threshold: evoTarget ? evoThresh : null,
+    created_at: new Date().toISOString()
+  };
+
+  const record = dbCreate(newPet);
+  allPets.push(record);
+  renderPets();
+}
+
+// ===== Delete =====
+function askDelete(id) {
+  const pet = allPets.find(p => p.__id === id);
+  if (!pet) return;
+  deletingPet = pet;
+  document.getElementById('delete-pet-name').textContent = `"${pet.pet_name}" 会很想你的...`;
+  const m = document.getElementById('delete-modal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+function closeDeleteModal() { deletingPet = null; const m = document.getElementById('delete-modal'); m.classList.add('hidden'); m.style.display = 'none'; }
+function confirmDelete() {
+  if (!deletingPet) return;
+  dbDelete(deletingPet);
+  allPets = allPets.filter(p => p.__id !== deletingPet.__id);
+  closeDeleteModal();
+  renderPets();
+}
+
+// ===== Manual =====
+function toggleManual() {
+  const m = document.getElementById('manual-modal');
+  if (m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.display = 'flex'; }
+  else closeManual();
+}
+function closeManual() { const m = document.getElementById('manual-modal'); m.classList.add('hidden'); m.style.display = 'none'; }
+
+function showLimitToast() {
+  const t = document.getElementById('limit-toast');
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 2500);
+}
+
+// ===== Init =====
+(function init() {
+  loadDb();
+  loadClasses();
+  allPets = dbRead().filter(r => r.type === 'pet');
+  renderPets();
+})();
+
+// ============================================================
+// ===== LEADERBOARD ==========================================
+// ============================================================
+function openLeaderboard() {
+  // Populate class filter
+  const sel = document.getElementById('lb-class-filter');
+  sel.innerHTML = '<option value="all">全部班级</option>' +
+    allClasses.map(c => `<option value="${c.__id}">${c.pet_name}</option>`).join('');
+  sel.value = activeClassId || 'all';
+  renderLeaderboard();
+  const m = document.getElementById('leaderboard-modal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+
+function closeLeaderboard() {
+  const m = document.getElementById('leaderboard-modal');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
+
+function renderLeaderboard() {
+  const sel = document.getElementById('lb-class-filter');
+  const filterClass = sel?.value || 'all';
+  let pets = allPets.filter(p => filterClass === 'all' || p.class_id === filterClass);
+  // Sort by growth desc, then level desc
+  pets = pets.slice().sort((a, b) => {
+    const la = getLevelFromGrowth(a.growth);
+    const lb2 = getLevelFromGrowth(b.growth);
+    if (lb2.level !== la.level) return lb2.level - la.level;
+    return b.growth - a.growth;
+  });
+
+  const medals = ['🥇','🥈','🥉'];
+  const list = document.getElementById('leaderboard-list');
+  if (pets.length === 0) {
+    list.innerHTML = '<div class="text-center py-8" style="color:#ccc;">暂无宝可梦</div>';
+    return;
+  }
+
+  list.innerHTML = pets.map((pet, i) => {
+    const info = getLevelFromGrowth(pet.growth);
+    const cached = allPokemonData[pet.pet_type];
+    const sprite = cached?.sprite || '';
+    const cls = allClasses.find(c => c.__id === pet.class_id);
+    const medal = i < 3 ? medals[i] : `<span style="color:#bbb;font-weight:700;font-size:13px;">${i+1}</span>`;
+    const barW = Math.min(100, (info.currentInLevel / info.neededForNext) * 100);
+    return `
+      <div class="flex items-center gap-3 p-2.5 rounded-2xl" style="background:${i===0?'linear-gradient(135deg,#fffbf0,#fff5e0);border:2px solid #ffd966':i===1?'linear-gradient(135deg,#f5f5f5,#ececec);border:2px solid #ddd':i===2?'linear-gradient(135deg,#fff5f0,#ffe8e0);border:2px solid #ffcfb3':'#f9f9f9;border:2px solid #f0f0f0'};">
+        <div class="text-xl w-7 text-center flex-shrink-0">${medal}</div>
+        <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:#f0f4ff;">
+          ${sprite ? `<img src="${sprite}" style="width:36px;height:36px;image-rendering:pixelated;object-fit:contain;" onerror="this.style.display='none'">` : '<span style="font-size:20px;">❓</span>'}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="font-black text-sm capitalize truncate" style="color:#333;">${pet.pet_name || pet.pet_type}</span>
+            <span class="px-1.5 py-0 rounded-full text-xs font-bold text-white" style="background:${levelColor(info.level)};">Lv.${info.level}</span>
+            ${cls ? `<span class="text-xs" style="color:#bbb;">${cls.pet_name}</span>` : ''}
+          </div>
+          <div class="w-full rounded-full overflow-hidden mt-1" style="height:4px;background:#eee;">
+            <div style="width:${barW}%;height:100%;border-radius:9999px;background:linear-gradient(90deg,${levelColor(info.level)},${levelColor(info.level)}cc);"></div>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="text-xs font-black" style="color:#e8a44a;">${pet.growth} XP</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Load missing sprites async
+  pets.forEach(pet => {
+    if (!allPokemonData[pet.pet_type]) {
+      fetchPokemon(pet.pet_type).then(info => {
+        if (info) { allPokemonData[pet.pet_type] = { sprite: info.sprite, types: info.types }; renderLeaderboard(); }
+      });
+    }
+  });
+}
+
+// ============================================================
+// ===== BATTLE SYSTEM ========================================
+// ============================================================
+let battlePetA = null;
+let battlePetB = null;
+let battleState = null;
+
+function openBattleSelect() {
+  if (!activeClassId) { alert('请先创建班级并收服宝可梦！'); return; }
+  const pets = allPets.filter(p => p.class_id === activeClassId);
+  if (pets.length < 2) { alert('需要至少2只宝可梦才能对战！'); return; }
+  battlePetA = null; battlePetB = null;
+
+  function renderPickList(containerId, sideKey) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = pets.map(pet => {
+      const info = getLevelFromGrowth(pet.growth);
+      const cached = allPokemonData[pet.pet_type];
+      const sprite = cached?.sprite || '';
+      return `<button onclick="selectBattlePet('${pet.__id}','${sideKey}')" id="bpick-${sideKey}-${pet.__id}"
+        class="btn-grow w-full flex items-center gap-2 p-2 rounded-xl text-left"
+        style="border:2px solid #eee;background:#f9f9f9;transition:all 0.2s;">
+        <div style="width:32px;height:32px;flex-shrink:0;background:#f0f4ff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+          ${sprite ? `<img src="${sprite}" style="width:28px;height:28px;image-rendering:pixelated;object-fit:contain;">` : '<span style="font-size:16px;">❓</span>'}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-black capitalize truncate" style="color:#333;">${pet.pet_name || pet.pet_type}</div>
+          <div class="text-xs" style="color:#bbb;">Lv.${info.level} · ${pet.growth}XP</div>
+        </div>
+      </button>`;
+    }).join('');
+  }
+
+  renderPickList('battle-pick-a', 'a');
+  renderPickList('battle-pick-b', 'b');
+
+  // Load sprites if needed
+  pets.forEach(pet => {
+    if (!allPokemonData[pet.pet_type]) {
+      fetchPokemon(pet.pet_type).then(info => {
+        if (info) { allPokemonData[pet.pet_type] = { sprite: info.sprite, types: info.types }; }
+      });
+    }
+  });
+
+  const m = document.getElementById('battle-select-modal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+
+function selectBattlePet(petId, side) {
+  const pet = allPets.find(p => p.__id === petId);
+  if (!pet) return;
+  if (side === 'a') { battlePetA = pet; }
+  else { battlePetB = pet; }
+  // Highlight selection
+  document.querySelectorAll(`[id^="bpick-${side}-"]`).forEach(btn => {
+    const isSelected = btn.id === `bpick-${side}-${petId}`;
+    btn.style.borderColor = isSelected ? (side === 'a' ? '#3d5af1' : '#e05050') : '#eee';
+    btn.style.background = isSelected ? (side === 'a' ? '#f0f4ff' : '#fff0f0') : '#f9f9f9';
+  });
+}
+
+function closeBattleSelect() {
+  const m = document.getElementById('battle-select-modal');
+  m.classList.add('hidden'); m.style.display = 'none';
+}
+
+function calcBattleStats(pet) {
+  const info = getLevelFromGrowth(pet.growth);
+  const lv = info.level;
+  const maxHp = 50 + lv * 10;
+  const atk = 8 + lv * 2 + Math.floor(pet.growth / 20);
+  const def = 3 + lv;
+  const spd = 5 + lv + Math.floor(pet.growth / 30);
+  return { lv, maxHp, hp: maxHp, atk, def, spd };
+}
+
+// ── Player-selectable moves ──────────────────────────────
+const PLAYER_MOVES = {
+  quick: { name: '快速攻击', power: 1.0, special: null,    emoji: '⚡' },
+  heavy: { name: '强力冲击', power: 1.8, special: 'heavy', emoji: '💥' },
+  heal:  { name: '恢复术',   power: 0,   special: 'heal',  emoji: '💚' },
+  guard: { name: '防守',     power: 0,   special: 'guard', emoji: '🛡️' },
+};
+// Enemy AI pool (slightly different flavour)
+const AI_MOVES = ['quick','heavy','heal','guard'];
+
+async function startBattle() {
+  if (!battlePetA || !battlePetB) { alert('请各选一只宝可梦！'); return; }
+  if (battlePetA.__id === battlePetB.__id) { alert('不能选同一只宝可梦！'); return; }
+  closeBattleSelect();
+
+  const infoA = await fetchPokemon(battlePetA.pet_type);
+  const infoB = await fetchPokemon(battlePetB.pet_type);
+  if (infoA) allPokemonData[battlePetA.pet_type] = { sprite: infoA.sprite, types: infoA.types };
+  if (infoB) allPokemonData[battlePetB.pet_type] = { sprite: infoB.sprite, types: infoB.types };
+
+  const statsA = calcBattleStats(battlePetA);
+  const statsB = calcBattleStats(battlePetB);
+
+  battleState = {
+    a: { pet: battlePetA, stats: statsA, sprite: infoA?.sprite || '' },
+    b: { pet: battlePetB, stats: statsB, sprite: infoB?.sprite || '' },
+    turn: statsA.spd >= statsB.spd ? 'a' : 'b',
+    round: 1,
+    over: false,
+    log: []
+  };
+
+  // Fill UI
+  document.getElementById('ba-name-a').textContent = battlePetA.pet_name || battlePetA.pet_type;
+  document.getElementById('ba-lv-a').textContent = 'Lv.' + statsA.lv;
+  document.getElementById('ba-name-b').textContent = battlePetB.pet_name || battlePetB.pet_type;
+  document.getElementById('ba-lv-b').textContent = 'Lv.' + statsB.lv;
+  document.getElementById('ba-sprite-a').src = battleState.a.sprite;
+  document.getElementById('ba-sprite-b').src = battleState.b.sprite;
+  updateBattleHpBars();
+
+  const log = document.getElementById('ba-log');
+  log.innerHTML = '';
+  battleLog(`⚔️ <b>${battlePetA.pet_name || battlePetA.pet_type}</b> 对战 <b>${battlePetB.pet_name || battlePetB.pet_type}</b>！`);
+  battleLog(`${battleState.turn === 'a' ? '🔵' : '🔴'} ${battleState.turn === 'a' ? (battlePetA.pet_name||battlePetA.pet_type) : (battlePetB.pet_name||battlePetB.pet_type)} 先手！`);
+
+  // Determine which side the human controls (always 'a')
+  showMovePanel(true);
+  battleState.pendingMoveA = null;
+  battleState.pendingMoveB = null;
+
+  const m = document.getElementById('battle-modal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+}
+
+function updateBattleHpBars() {
+  const bs = battleState;
+  const pctA = Math.max(0, bs.a.stats.hp / bs.a.stats.maxHp * 100);
+  const pctB = Math.max(0, bs.b.stats.hp / bs.b.stats.maxHp * 100);
+  document.getElementById('ba-hp-bar-a').style.width = pctA + '%';
+  document.getElementById('ba-hp-bar-a').style.background = pctA > 50 ? 'linear-gradient(90deg,#4ade80,#22c55e)' : pctA > 25 ? 'linear-gradient(90deg,#facc15,#f59e0b)' : 'linear-gradient(90deg,#f87171,#ef4444)';
+  document.getElementById('ba-hp-text-a').textContent = `HP: ${Math.max(0,bs.a.stats.hp)}/${bs.a.stats.maxHp}`;
+  const pctBC = Math.max(0, bs.b.stats.hp / bs.b.stats.maxHp * 100);
+  document.getElementById('ba-hp-bar-b').style.width = pctB + '%';
+  document.getElementById('ba-hp-bar-b').style.background = pctBC > 50 ? 'linear-gradient(90deg,#f87171,#ef4444)' : pctBC > 25 ? 'linear-gradient(90deg,#facc15,#f59e0b)' : 'linear-gradient(90deg,#fb923c,#ea580c)';
+  document.getElementById('ba-hp-text-b').textContent = `HP: ${Math.max(0,bs.b.stats.hp)}/${bs.b.stats.maxHp}`;
+}
+
+function battleLog(msg) {
+  const el = document.getElementById('ba-log');
+  const line = document.createElement('div');
+  line.className = 'text-sm';
+  line.style.cssText = 'color:rgba(255,255,255,0.82);line-height:1.6;margin-bottom:2px;';
+  line.innerHTML = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function showDmgPopup(side, text, isHeal) {
+  const key = isHeal ? `ba-heal-${side}` : `ba-dmg-${side}`;
+  const el = document.getElementById(key);
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = 'block';
+  el.style.animation = 'none';
+  requestAnimationFrame(() => {
+    el.style.animation = 'heart-float 0.9s ease-out forwards';
+  });
+  setTimeout(() => { el.style.display = 'none'; }, 900);
+}
+
+function soundBattleHit() {
+  playTone(220, 0.08, 'square', 0.12);
+  setTimeout(() => playTone(180, 0.1, 'square', 0.08), 60);
+}
+function soundBattleCrit() {
+  [440,550,660].forEach((f,i) => setTimeout(() => playTone(f, 0.12, 'square', 0.14), i*60));
+}
+function soundBattleMiss() {
+  playTone(180, 0.15, 'triangle', 0.07);
+}
+function soundBattleHeal() {
+  [523,659,784].forEach((f,i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.1), i*80));
+}
+function soundBattleWin() {
+  [523,659,784,1047,1318].forEach((f,i) => setTimeout(() => playTone(f, 0.4, 'sine', 0.13), i*110));
+}
+
+// ── Move panel helpers ───────────────────────────────────
+function showMovePanel(enabled) {
+  const panel = document.getElementById('ba-move-panel');
+  const waiting = document.getElementById('ba-waiting');
+  const label = document.getElementById('ba-turn-label');
+  if (!panel) return;
+  if (enabled) {
+    panel.style.display = 'grid';
+    panel.style.opacity = '1';
+    panel.style.pointerEvents = 'auto';
+    if (waiting) waiting.classList.add('hidden');
+    if (label) { label.textContent = '🔵 选择你的招式'; label.style.color = '#80b4ff'; }
+    // Reset highlight
+    ['quick','heavy','heal','guard'].forEach(k => {
+      const b = document.getElementById('bmove-'+k);
+      if (b) { b.style.transform = ''; b.style.filter = ''; b.style.outline = ''; }
+    });
+  } else {
+    panel.style.opacity = '0.35';
+    panel.style.pointerEvents = 'none';
+    if (waiting) waiting.classList.remove('hidden');
+    if (label) { label.textContent = '⏳ 对手行动中...'; label.style.color = 'rgba(255,255,255,0.4)'; }
+  }
+}
+
+function highlightMove(key) {
+  ['quick','heavy','heal','guard'].forEach(k => {
+    const b = document.getElementById('bmove-'+k);
+    if (!b) return;
+    if (k === key) {
+      b.style.outline = '3px solid #fff';
+      b.style.filter = 'brightness(1.2)';
+      b.style.transform = 'scale(1.04)';
+    } else {
+      b.style.outline = '';
+      b.style.filter = 'brightness(0.6)';
+      b.style.transform = '';
+    }
+  });
+}
+
+// Called when player clicks a move button
+async function playerPickMove(moveKey) {
+  if (!battleState || battleState.over || battleState.pendingMoveA) return;
+  highlightMove(moveKey);
+  battleState.pendingMoveA = moveKey;
+  // AI picks
+  const aiWeights = { quick: 3, heavy: 2, heal: battleState.b.stats.hp < battleState.b.stats.maxHp * 0.4 ? 4 : 1, guard: 2 };
+  const aiPool = AI_MOVES.flatMap(k => Array(aiWeights[k]).fill(k));
+  battleState.pendingMoveB = aiPool[Math.floor(Math.random() * aiPool.length)];
+  showMovePanel(false);
+  await new Promise(r => setTimeout(r, 400));
+  await executeTurn();
+}
+
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+async function applyMove(attSide, defSide, moveKey) {
+  const bs = battleState;
+  const att = bs[attSide]; const def = bs[defSide];
+  const move = PLAYER_MOVES[moveKey];
+  const attName = att.pet.pet_name || att.pet.pet_type;
+  const defName = def.pet.pet_name || def.pet.pet_type;
+  const sideEmoji = attSide === 'a' ? '🔵' : '🔴';
+
+  // ── Heal ──────────────────────────────────────────────
+  if (move.special === 'heal') {
+    const healAmt = Math.floor(att.stats.maxHp * 0.25);
+    att.stats.hp = Math.min(att.stats.maxHp, att.stats.hp + healAmt);
+    soundBattleHeal();
+    showDmgPopup(attSide, '+'+healAmt+'❤️', true);
+    battleLog(`${sideEmoji} <b>${attName}</b> 使用了 <b>${move.emoji} ${move.name}</b>，恢复了 <b>${healAmt}</b> HP！`);
+    updateBattleHpBars();
+    await delay(700);
+    return false;
+  }
+
+  // ── Guard ─────────────────────────────────────────────
+  if (move.special === 'guard') {
+    att.stats.guarding = true;
+    soundBattleHeal();
+    showDmgPopup(attSide, '🛡️', true);
+    battleLog(`${sideEmoji} <b>${attName}</b> 使用了 <b>${move.emoji} ${move.name}</b>！伤害减半！`);
+    await delay(600);
+    return false;
+  }
+
+  // ── Attack ────────────────────────────────────────────
+  const isCrit = Math.random() < 0.12;
+  const critMult = isCrit ? 1.75 : 1.0;
+  let rawDmg = Math.max(1, Math.floor(att.stats.atk * move.power * critMult - def.stats.def * 0.5 + (Math.random()*4-2)));
+  // Heavy has 20% miss chance
+  if (move.special === 'heavy' && Math.random() < 0.2) {
+    soundBattleMiss();
+    battleLog(`${sideEmoji} <b>${attName}</b> 使用了 <b>${move.emoji} ${move.name}</b>，但是…… 没有命中！`);
+    await delay(600);
+    return false;
+  }
+  // Guard halves incoming
+  if (def.stats.guarding) rawDmg = Math.max(1, Math.floor(rawDmg * 0.5));
+  const dmg = Math.max(1, rawDmg);
+  def.stats.hp -= dmg;
+  isCrit ? soundBattleCrit() : soundBattleHit();
+  showDmgPopup(defSide, '-'+dmg, false);
+  const sp = document.getElementById('ba-sprite-'+defSide);
+  if (sp) { sp.style.animation = 'sad-shake 0.35s ease-in-out'; setTimeout(()=>sp.style.animation='',400); }
+  const critStr = isCrit ? ' ✨<b>暴击！</b>' : '';
+  const guardStr = def.stats.guarding ? ' <span style="color:#f59e0b;">（被格挡，伤害减半）</span>' : '';
+  battleLog(`${sideEmoji} <b>${attName}</b> 使用了 <b>${move.emoji} ${move.name}</b>，造成 <b>${dmg}</b> 伤害${critStr}${guardStr}`);
+  updateBattleHpBars();
+  await delay(600);
+
+  if (def.stats.hp <= 0) { def.stats.hp = 0; updateBattleHpBars(); return true; }
+  return false;
+}
+
+async function executeTurn() {
+  const bs = battleState;
+  const moveA = bs.pendingMoveA;
+  const moveB = bs.pendingMoveB;
+  bs.pendingMoveA = null; bs.pendingMoveB = null;
+  // Reset guard flags
+  bs.a.stats.guarding = false; bs.b.stats.guarding = false;
+
+  battleLog(`━━ 第 ${bs.round} 回合 ━━`);
+  bs.round++;
+
+  // Speed determines who goes first
+  const firstSide  = bs.a.stats.spd >= bs.b.stats.spd ? 'a' : 'b';
+  const secondSide = firstSide === 'a' ? 'b' : 'a';
+  const firstMove  = firstSide === 'a' ? moveA : moveB;
+  const secondMove = firstSide === 'a' ? moveB : moveA;
+
+  let ko = await applyMove(firstSide, secondSide, firstMove);
+  if (ko) { endBattle(firstSide); return; }
+
+  await delay(200);
+  ko = await applyMove(secondSide, firstSide, secondMove);
+  if (ko) { endBattle(secondSide); return; }
+
+  if (!battleState.over) {
+    showMovePanel(true);
+  }
+}
+
+function endBattle(winnerSide) {
+  battleState.over = true;
+  const winner = battleState[winnerSide];
+  const loser  = battleState[winnerSide === 'a' ? 'b' : 'a'];
+  const winName  = winner.pet.pet_name || winner.pet.pet_type;
+  const loseName = loser.pet.pet_name  || loser.pet.pet_type;
+
+  soundBattleWin();
+  battleLog(`🏆 <b style="color:#ffd700;">${winName}</b> 获胜！${loseName} 倒下了！`);
+
+  const xpGain = Math.max(3, Math.floor(loser.stats.lv * 3 + 5));
+  const winPet = allPets.find(p => p.__id === winner.pet.__id);
+  if (winPet) {
+    const oldLevel = getLevelFromGrowth(winPet.growth).level;
+    const updated = { ...winPet, growth: winPet.growth + xpGain, mood: 'happy' };
+    dbUpdate(updated); allPets = allPets.map(p => p.__id === winPet.__id ? updated : p);
+    const newLevel = getLevelFromGrowth(updated.growth).level;
+    battleLog(`⚡ <b>${winName}</b> 获得了 <b>${xpGain}</b> 经验值！${newLevel > oldLevel ? ' 🎉 升级了！' : ''}`);
+  }
+
+  // Hide move panel, show end state
+  const panel = document.getElementById('ba-move-panel');
+  if (panel) { panel.style.display = 'none'; }
+  const waiting = document.getElementById('ba-waiting');
+  if (waiting) { waiting.classList.add('hidden'); }
+  const label = document.getElementById('ba-turn-label');
+  if (label) { label.textContent = winnerSide === 'a' ? '🎉 你赢了！' : '💀 你输了...'; label.style.color = winnerSide === 'a' ? '#ffd700' : '#f87171'; }
+}
+
+function forceEndBattle() {
+  if (battleState && !battleState.over) {
+    battleLog('🏳️ 战斗提前结束，双方平局。');
+    renderPets();
+  }
+  closeBattle();
+}
+
+function closeBattle() {
+  battleState = null; battlePetA = null; battlePetB = null;
+  const m = document.getElementById('battle-modal');
+  m.classList.add('hidden'); m.style.display = 'none';
+  renderPets();
+}
+</script>
+</body>
+</html>
